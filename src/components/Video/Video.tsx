@@ -2,7 +2,11 @@ import { DefaultUi, Player, Youtube } from '@vime/react'
 import { CaretRight, DiscordLogo, FileArrowDown, Lightning } from 'phosphor-react'
 import '@vime/core/themes/default.css'
 
-const Video = () => {
+interface VideoProps {
+  lessonSlug: string;
+}
+
+const Video = (props: VideoProps) => {
   return (
     <div className='flex-1'>
       <div className='bg-black flex justify-center'>
