@@ -1,51 +1,29 @@
 import { DefaultUi, Player, Youtube } from '@vime/react'
 import { CaretRight, DiscordLogo, FileArrowDown, Lightning } from 'phosphor-react'
 import '@vime/core/themes/default.css'
-import { gql, useQuery } from '@apollo/client';
+import { useGetLessonBySlugQuery } from './../../graphql/generated';
 
-const GET_LESSON_BY_SLUG_QUERY = gql`
-query GetLessonBySlug($slug:String) {
-  lesson(where: {slug: $slug}) {
-    videoId
-    title
-    teacher {
-      avatarURL
-      bio
-      name
-    }
-    description
-  }
-}`;
+
 
 
 interface VideoProps {
   lessonSlug: string;
 }
 
-interface GetLessonBySlugResponse{
-  lesson: {
-    title: string;
-    videoId: string;
-    description: string;
-    teacher: {
-      name: string;
-      avatarURL: string;
-      bio: string;
-    }
-  }
-}
 
 const Video = (props: VideoProps) => {
 
-  const { data } = useQuery<GetLessonBySlugResponse>(GET_LESSON_BY_SLUG_QUERY,{
+  const { data } = useGetLessonBySlugQuery({
     variables: {
-      slug: props.lessonSlug
+      slug: props.lessonSlug,
+
     }
   })
 
-  if(!data){
+
+  if (!data || !data.lesson) {
     return (
-    <div className="flex-1">Loading...</div>)
+      <div className="flex-1">Loading...</div>)
   }
 
   return (
@@ -54,7 +32,7 @@ const Video = (props: VideoProps) => {
         <div className='h-full w-full max-w-[1100px] max-h-[60vh] aspect-video'>
           <Player >
             <Youtube videoId={data.lesson.videoId} />
-            <DefaultUi/>
+            <DefaultUi />
           </Player>
         </div>
       </div>
@@ -69,7 +47,8 @@ const Video = (props: VideoProps) => {
             <p className='mt-4 text-gray-200 leading-relaxed'>
               {data.lesson.description}
             </p>
-            <div className=' flex items-center gap-4 mt-6'>
+
+            {data.lesson.teacher && (<div className=' flex items-center gap-4 mt-6'>
               <img
                 src={data.lesson.teacher.avatarURL}
                 alt=""
@@ -81,8 +60,9 @@ const Video = (props: VideoProps) => {
                 <span className="text-gray-200 text-sm block">{data.lesson.teacher.bio}</span>
 
               </div>
-            </div>
+            </div>)}
           </div>
+          
           <div className="flex flex-col gap-4">
             <a href="" className="p-4 text-sm bg-green-500 flex items-center rounded font-bold uppercase  justify-center gap-2 hover:bg-green-700 transition-colors">
               <DiscordLogo size={24} />
